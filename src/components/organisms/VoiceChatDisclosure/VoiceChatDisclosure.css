@@ -1,0 +1,24 @@
+.visualizer-stick {
+  --small-height: 5px;
+}
+
+.avatar-el:not(:first-child) {
+  position: relative;
+  left: calc(-10px * var(--index));
+}
+
+.visualizer-stick:nth-child(even) {
+  animation: visualizer 0.4s 0.4s infinite alternate-reverse linear;
+  display: block;
+}
+
+.visualizer-stick:nth-child(odd) {
+  animation: visualizer 0.4s 0.1s infinite alternate-reverse linear;
+  display: block;
+}
+
+@keyframes visualizer {
+  to {
+    height: var(--small-height);
+  }
+}

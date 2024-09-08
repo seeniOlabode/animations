@@ -1,0 +1,28 @@
+.tab-trigger[data-state="active"] > span {
+  display: block;
+}
+
+.add-style {
+  position: relative;
+}
+
+.add-style::after {
+  content: "";
+  display: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  @apply shadow-inner;
+  pointer-events: none;
+}
+
+.dimension-item:hover,
+.dimension-item:focus-within {
+  opacity: 1 !important;
+}
+
+.custom-radio-item[data-state="checked"] ~ label {
+  @apply bg-primary/[0.85] text-white;
+}

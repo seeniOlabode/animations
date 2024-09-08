@@ -1,24 +1,33 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import DynamicSettings from "./components/organisms/DynamicSettings/DynamicSettings";
+import VoiceChatDisclosure from "./components/organisms/VoiceChatDisclosure/VoiceChatDisclosure";
+import { Toaster } from "sonner";
+
+const components = [
+  <VoiceChatDisclosure />,
+  <DynamicSettings />,
+  "Coming Soon",
+  "Coming Soon",
+];
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <html lang="en">
+      <body>
+        <main>
+          <div className="app h-screen w-screen flex flex-wrap gap-2 p-2">
+            {components.map((comp) => {
+              return (
+                <div className="aspect-square border flex items-center justify-center rounded-sm basis-1/3 flex-grow">
+                  {comp}
+                </div>
+              );
+            })}
+          </div>
+        </main>
+        <Toaster />
+      </body>
+    </html>
   );
 }
 
