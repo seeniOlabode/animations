@@ -1,0 +1,11 @@
+@media (max-width: 400px) {
+  .components-container {
+    padding: 0;
+    gap: 0;
+  }
+
+  .single-component {
+    border-radius: 0;
+    border-top: 0;
+  }
+}

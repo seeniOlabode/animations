@@ -26,3 +26,28 @@
 .custom-radio-item[data-state="checked"] ~ label {
   @apply bg-primary/[0.85] text-white;
 }
+
+.close-button {
+  position: relative;
+}
+
+.close-button svg {
+  position: relative;
+  left: 5px;
+}
+
+.close-button:hover {
+  background-color: none;
+  background: none;
+}
+
+.close-button:hover::before {
+  display: block;
+  content: "";
+  position: absolute;
+  inset: 5px;
+  left: 10px;
+  right: 0;
+  @apply bg-accent rounded-md;
+  z-index: -1;
+}

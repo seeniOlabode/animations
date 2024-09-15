@@ -28,6 +28,7 @@ const MotionTabsList = motion.create(TabsList);
 const MotionTabsTrigger = motion.create(TabsTrigger);
 const MotionTabs = motion.create(Tabs);
 const MotionTextarea = motion.create(Textarea);
+const MotionRadioGroup = motion.create(RadioGroup);
 
 const tabs = ["Dimensions", "Aspect Ratio", "Prompt"];
 const ratios = [
@@ -45,10 +46,14 @@ export default function DynamicSettings() {
     { title: "Horizontal", value: 50 },
     { title: "Upscale", value: 50 },
   ]);
+  const [prompt, setPrompt] = useState("");
 
   const [tabsExpanded, setTabsExpanded] = useState(false);
   const [height, setHeight] = useState(0);
   const elementRef = useRef(null);
+
+  // const settingsRef = useRef(null);
+  // useOnClickOutside(settingsRef, () => toggleTabsExpanded());
 
   useEffect(() => {
     let once = false;
@@ -93,6 +98,10 @@ export default function DynamicSettings() {
     });
   }
 
+  function handlePromptChanges(value) {
+    setPrompt(value);
+  }
+
   return (
     <AnimatePresence mode="popLayout">
       {tabsExpanded ? (
@@ -103,12 +112,16 @@ export default function DynamicSettings() {
           key={"dynamic-wrapper" + tabsExpanded}
           initial={{ filter: "blur(10px)" }}
           animate={{ filter: "blur(0px)" }}
+          // ref={settingsRef}
         >
           <MotionTabs
             defaultValue="dimensions"
-            className="w-[350px] rounded-lg p-2"
+            className="w-[350px] rounded-lg p-1 pb-1"
           >
-            <MotionTabsList layout className="bg-transparent p-0 w-full">
+            <MotionTabsList
+              layout
+              className="bg-transparent p-0 w-full h-[32px]"
+            >
               <AnimatePresence>
                 {tabs.map((tab, i) => {
                   return (
@@ -137,7 +150,7 @@ export default function DynamicSettings() {
               <Button
                 size="outline"
                 variant="ghost"
-                className="ml-auto w-[40px] h-[40px]"
+                className="ml-auto w-[40px] h-[40px] close-button"
                 onClick={toggleTabsExpanded}
               >
                 <MotionCross1Icon
@@ -145,6 +158,7 @@ export default function DynamicSettings() {
                   color="#020617"
                   initial={{ rotate: 45 }}
                   animate={{ rotate: 0 }}
+                  className="rotate-0"
                 />
               </Button>
             </MotionTabsList>
@@ -153,6 +167,7 @@ export default function DynamicSettings() {
                 animate={{
                   height: height && tabsExpanded ? height : null,
                 }}
+                className="px-2"
               >
                 <div ref={elementRef}>
                   <TabsContent value="dimensions" className="p-2">
@@ -174,7 +189,7 @@ export default function DynamicSettings() {
                             className="flex w-full items-center justify-between opacity-85 hover:opacity-100 focus-within:opacity-100 dimension-item"
                             key={setting.title}
                           >
-                            <label className="text-muted-foreground">
+                            <label className="text-muted-foreground font-normal text-sm">
                               {setting.title}
                             </label>
                             <div className="flex w-full gap-2 justify-end">
@@ -196,19 +211,18 @@ export default function DynamicSettings() {
                       })}
                     </ul>
                   </TabsContent>
-                  <TabsContent value="aspect ratio">
-                    <RadioGroup defaultValue="1:1" className="flex flex-wrap">
+                  <TabsContent value="aspect ratio" className="mb-3">
+                    <MotionRadioGroup
+                      defaultValue="1:1"
+                      className="flex flex-wrap"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1, transition: { delay: 0.1 } }}
+                    >
                       {ratios.map((ratio, i) => {
                         return (
-                          <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{
-                              opacity: 1,
-                              transition: {
-                                delay: i + 1 / 3 === 0 ? 0.07 : 0.1,
-                              },
-                            }}
+                          <div
                             className="flex w-full justify-start h-[32px] basis-1/4"
+                            key={ratio.text}
                           >
                             <RadioGroupItem
                               id={ratio.text}
@@ -222,17 +236,19 @@ export default function DynamicSettings() {
                               {ratio.icon}
                               {ratio.text}
                             </Label>
-                          </motion.div>
+                          </div>
                         );
                       })}
-                    </RadioGroup>
+                    </MotionRadioGroup>
                   </TabsContent>
                   <TabsContent value="prompt">
                     <MotionTextarea
                       initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="resize-none min-h-[80px]"
+                      animate={{ opacity: 1, transition: { delay: 0.1 } }}
+                      className="resize-none min-h-[100px] text-base sm:text-sm"
                       placeholder="Add a new prompt"
+                      value={prompt}
+                      onInput={(e) => handlePromptChanges(e.target.value)}
                     />
                   </TabsContent>
                 </div>
@@ -241,17 +257,18 @@ export default function DynamicSettings() {
 
             <motion.div
               layout
-              className="tabs-footer px-2 flex justify-between mt-3 items-center"
+              className="tabs-footer px-2 pb-2 flex justify-between mt-2 items-center"
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1, transition: { delay: 0.4 } }}
               key="tabs-footer"
             >
-              <div layout className="flex gap-1 items-center">
+              <div className="flex gap-1 items-center ml-2">
                 <span className="h-[6px] w-[6px] rounded-full bg-slate-950"></span>
-                <span className="text-xs text-muted-foreground">Changes</span>
+                <span className="text-xs text-muted-foreground font-normal">
+                  Changes
+                </span>
               </div>
               <MotionButton
-                l
                 className="bg-slate-950 font-xs font-normal"
                 onClick={applyStyles}
               >
@@ -281,7 +298,6 @@ export default function DynamicSettings() {
               color="#020617"
               initial={{ rotate: 0 }}
               animate={{ rotate: 45 }}
-              className="rotate-45"
             />
           </MotionButton>
         </motion.div>

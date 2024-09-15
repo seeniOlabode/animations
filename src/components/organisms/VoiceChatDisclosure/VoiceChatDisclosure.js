@@ -169,11 +169,12 @@ export default function VoiceChatDisclosure() {
                       y: 0,
                       transition: { delay: 0.15 },
                     }}
+                    key={member.fallback + "avatar"}
                   >
                     <AnimatePresence mode="wait">
                       {[0, 5].includes(i) ? (
                         <MotionSoundVisualizer
-                          key="visualizer"
+                          key={"visualizer" + i}
                           colorTheme="light"
                           layout
                           sizeMatters="w-[20px] h-[20px] -top-[8px] -right-[8px] p-[4px] origin-bottom-left"
@@ -255,6 +256,7 @@ export default function VoiceChatDisclosure() {
                   `order-[${i}] avatar-el`
                 }
                 style={{ "--index": i }}
+                key={member.fallback}
               >
                 <MotionAvatarImage
                   layout

@@ -1,0 +1,59 @@
+/* GeistVF font-face rule for all formats */
+@font-face {
+  font-family: "Geist";
+  src: url("../statics-woff/Geist-Regular.woff2") format("woff2"),
+    url("../statics-woff/Geist-Regular.woff") format("woff"),
+    url("../statics-ttf/Geist-Regular.ttf") format("truetype"),
+    url("../statics-otf/Geist-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Other weights and styles */
+@font-face {
+  font-family: "Geist";
+  src: url("../statics-woff/Geist-Bold.woff2") format("woff2"),
+    url("../statics-woff/Geist-Bold.woff") format("woff"),
+    url("../statics-ttf/Geist-Bold.ttf") format("truetype"),
+    url("../statics-otf/Geist-Bold.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Geist";
+  src: url("../statics-woff/Geist-Light.woff2") format("woff2"),
+    url("../statics-woff/Geist-Light.woff") format("woff"),
+    url("../statics-ttf/Geist-Light.ttf") format("truetype"),
+    url("../statics-otf/Geist-Light.otf") format("opentype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Add similar blocks for each weight/style */
+@font-face {
+  font-family: "Geist";
+  src: url("../statics-woff/Geist-Thin.woff2") format("woff2"),
+    url("../statics-woff/Geist-Thin.woff") format("woff"),
+    url("../statics-ttf/Geist-Thin.ttf") format("truetype"),
+    url("../statics-otf/Geist-Thin.otf") format("opentype");
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Geist";
+  src: url("../statics-woff/Geist-Medium.woff2") format("woff2"),
+    url("../statics-woff/Geist-Medium.woff") format("woff"),
+    url("../statics-ttf/Geist-Medium.ttf") format("truetype"),
+    url("../statics-otf/Geist-Medium.otf") format("opentype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Continue for all the remaining font weights (SemiBold, UltraBlack, UltraLight, etc.) */

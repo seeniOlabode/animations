@@ -1,2 +1,31 @@
 @import "./globals.css";
 @import "./assets/css/typography.css";
+
+* {
+  font-family: "Geist", "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
+    "Lucida Sans", Arial, sans-serif;
+}
+
+.geist-200 {
+  font-weight: 200;
+}
+
+.geist-300 {
+  font-weight: 300;
+}
+
+.geist-400 {
+  font-weight: 400;
+}
+
+.geist-500 {
+  font-weight: 500;
+}
+
+.geist-600 {
+  font-weight: 600;
+}
+
+.geist-700 {
+  font-weight: 700;
+}
