@@ -59,13 +59,12 @@ main {
   min-width: fit-content;
   position: relative;
   transition: all 0.15s;
-  text-decoration: underline;
-  text-decoration-color: transparent;
 }
 
 .links li:hover {
   @apply text-primary;
   text-decoration-color: var(--primary);
+  text-decoration: underline;
 }
 
 @media (min-width: 1024px) {
