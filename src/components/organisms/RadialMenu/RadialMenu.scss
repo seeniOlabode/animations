@@ -15,6 +15,28 @@ $outer-ring-dimenstion: calc($menu-dimension + 25px);
   -webkit-font-smoothing: antialiased;
 }
 
+.radial-menu-wrapper {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $text-color;
+
+  &::before {
+    content: "Hold and rotate from anywhere";
+    opacity: 1;
+    transition: 0.2s ease;
+    font-size: 14px;
+  }
+
+  &:active {
+    &::before {
+      opacity: 0;
+    }
+  }
+}
+
 .radial-menu-container {
   display: flex;
   align-items: center;
@@ -288,4 +310,13 @@ $outer-ring-dimenstion: calc($menu-dimension + 25px);
     display: block;
   }
   transform: rotate(var(--active-degree));
+}
+
+@media screen and (max-width: 400px) {
+  .radial-menu-container {
+    transform: none !important;
+    position: absolute;
+    top: unset;
+    left: unset;
+  }
 }

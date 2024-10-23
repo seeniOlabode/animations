@@ -1,5 +1,10 @@
 import { menuItems } from "../RadialMenu";
-import { selectAllFrom, selectFrom } from "./utils";
+import {
+  selectAllFrom,
+  selectFrom,
+  isTouchDevice,
+  isSafariBrowser,
+} from "./utils";
 
 type Coordinates = {
   x: number;
@@ -11,14 +16,22 @@ export default class RadialMenuLogic {
   private el: HTMLElement;
   private boundingRect: DOMRect;
   private anchor: Coordinates;
+  private container: HTMLElement;
   private menuItemList: HTMLElement;
   private menuItems: HTMLElement[];
   private outerRing: HTMLElement;
   private lastActiveItem: number;
-  private lastRotation: number;
   private mousemoveThreshold: number;
+  private itemIndexesMap: any;
+  private defaultItemIndexesMap: any;
+  private addBase: boolean;
+  private dropBase: boolean;
 
-  constructor(el: HTMLElement, optionHandler) {
+  constructor(
+    el: HTMLElement,
+    optionHandler,
+    container: HTMLElement = document.documentElement
+  ) {
     this.el = el;
     this.optionHandler = optionHandler;
     this.menuItemList = selectFrom(".radial-menu", this.el);
@@ -27,6 +40,7 @@ export default class RadialMenuLogic {
     this.boundingRect = el.getBoundingClientRect();
     this.el.style.display = "none";
     this.mousemoveThreshold = 10;
+    this.container = container;
 
     // Bind locale functions to instance;
     for (const key of Object.getOwnPropertyNames(Object.getPrototypeOf(this))) {
@@ -35,11 +49,21 @@ export default class RadialMenuLogic {
       }
     }
 
-    this._add(window, "mousedown", this._handleMouseDown);
-    this._add(window, "touchstart", this._handleMouseDown);
+    this.setIndexMap();
+    this.itemIndexesMap = { ...this.defaultItemIndexesMap };
+    this._add(this.container, "mousedown", this._handleMouseDown);
+    this._add(this.container, "touchstart", this._handleMouseDown);
   }
 
-  _handleMouseDown(evt) {
+  setIndexMap() {
+    // prepare indexes map
+    this.defaultItemIndexesMap = {};
+    menuItems.forEach((item, i) => {
+      this.defaultItemIndexesMap[i] = i;
+    });
+  }
+
+  _handleMouseDown(evt: MouseEvent) {
     const { x, y, target } = simplifyEvent(evt);
     const { width, height } = this.boundingRect;
 
@@ -57,8 +81,8 @@ export default class RadialMenuLogic {
     document.documentElement.style.cursor = "move";
     document.documentElement.style.userSelect = "none";
 
-    this._remove(window, "mousedown", this._handleMouseDown);
-    this._remove(window, "touchstart", this._handleMouseDown);
+    this._remove(this.container, "mousedown", this._handleMouseDown);
+    this._remove(this.container, "touchstart", this._handleMouseDown);
 
     this._add(window, "mouseup", this._handleMouseUp);
     this._add(window, "touchend", this._handleMouseUp);
@@ -67,7 +91,7 @@ export default class RadialMenuLogic {
     this._add(window, "touchmove", this._handleThresholdMouseMove);
   }
 
-  _handleMouseUp(evt) {
+  _handleMouseUp(evt: MouseEvent | TouchEvent) {
     if (typeof this.lastActiveItem === "number") {
       this.optionHandler(menuItems[this.lastActiveItem]);
     }
@@ -86,6 +110,9 @@ export default class RadialMenuLogic {
     document.documentElement.style.userSelect = null;
 
     this.lastActiveItem = null;
+    this.itemIndexesMap = { ...this.defaultItemIndexesMap };
+    this.dropBase = false;
+    this.addBase = false;
     this._remove(window, "mouseup", this._handleMouseUp);
     this._remove(window, "touchend", this._handleMouseUp);
 
@@ -95,11 +122,14 @@ export default class RadialMenuLogic {
     this._remove(window, "mousemove", this._handleMouseMove);
     this._remove(window, "touchmove", this._handleMouseMove);
 
-    this._add(window, "mousedown", this._handleMouseDown);
-    this._add(window, "touchstart", this._handleMouseDown);
+    this._add(this.container, "mousedown", this._handleMouseDown);
+    this._add(this.container, "touchstart", this._handleMouseDown);
   }
 
-  _handleThresholdMouseMove(evt) {
+  _handleThresholdMouseMove(evt: MouseEvent | TouchEvent) {
+    if (isTouchDevice() || isSafariBrowser()) {
+      evt.preventDefault();
+    }
     const { x: x1, y: y1 } = this.anchor;
     const { x: x2, y: y2 } = simplifyEvent(evt);
 
@@ -117,17 +147,17 @@ export default class RadialMenuLogic {
     }
   }
 
-  _handleMouseMove(evt) {
+  _handleMouseMove(evt: MouseEvent | TouchEvent) {
+    if (isTouchDevice() || isSafariBrowser()) {
+      evt.preventDefault();
+    }
     const { x: x1, y: y1 } = this.anchor;
     const { x: x2, y: y2 } = simplifyEvent(evt);
     const angle = this.getMouseDirection(x1, y1, x2, y2);
 
     const targetIndex = this.getTargetItemIndex(angle);
 
-    const ringRotation = (targetIndex - 1.5) * 60;
-    const normalizedRotation =
-      ringRotation < 0 ? 360 + ringRotation : ringRotation;
-    this.highlightItem(targetIndex, normalizedRotation);
+    this.highlightItem(targetIndex);
   }
 
   getTargetItemIndex(mouseDirection, numItems = 6) {
@@ -157,21 +187,63 @@ export default class RadialMenuLogic {
     return degrees;
   }
 
-  highlightItem(index: number, normalizedRotation) {
+  highlightItem(index: number) {
     if (this.lastActiveItem === index) return;
+
     if (typeof index === "number") {
       this.menuItems.forEach((item, i) => {
         item.dataset.itemActive = String(i === index);
       });
       this.el.dataset.isActive = "true";
       this.menuItemList.dataset.activeItem = menuItems[index].name;
-      this.el.style.setProperty("--active-degree", `${normalizedRotation}deg`);
       typeof this.lastActiveItem === "number" &&
         this.outerRing.classList.add("should-transition");
+      this.highlightRing(index);
       this.lastActiveItem = index;
     } else {
       this.el.dataset.isActive = "false";
     }
+  }
+
+  highlightRing(targetIndex) {
+    // the following piece of haram code ensures that the radial menu can go in an endless cycle
+    if (this.dropBase) {
+      this.dropBase = false;
+      if (targetIndex === 4 || targetIndex === 5) {
+        this.itemIndexesMap[0] = this.itemIndexesMap[0] - menuItems.length;
+        this.itemIndexesMap[1] = this.itemIndexesMap[1] - menuItems.length;
+        this.itemIndexesMap[2] = this.itemIndexesMap[2] - menuItems.length;
+        this.itemIndexesMap[3] = this.itemIndexesMap[3] - menuItems.length;
+      } else {
+        this.itemIndexesMap[4] = this.itemIndexesMap[4] + menuItems.length;
+        this.itemIndexesMap[5] = this.itemIndexesMap[5] + menuItems.length;
+      }
+    } else if (this.addBase) {
+      this.addBase = false;
+      if (targetIndex === 0 || targetIndex === 1) {
+        this.itemIndexesMap[2] = this.itemIndexesMap[2] + menuItems.length;
+        this.itemIndexesMap[3] = this.itemIndexesMap[3] + menuItems.length;
+        this.itemIndexesMap[4] = this.itemIndexesMap[4] + menuItems.length;
+        this.itemIndexesMap[5] = this.itemIndexesMap[5] + menuItems.length;
+      } else {
+        this.itemIndexesMap[0] = this.itemIndexesMap[0] - menuItems.length;
+        this.itemIndexesMap[1] = this.itemIndexesMap[1] - menuItems.length;
+      }
+    }
+
+    if (targetIndex === 0 || targetIndex === 1) {
+      this.dropBase = true;
+      this.itemIndexesMap[4] = this.itemIndexesMap[4] - menuItems.length;
+      this.itemIndexesMap[5] = this.itemIndexesMap[5] - menuItems.length;
+    } else if (targetIndex === 5 || targetIndex === 4) {
+      this.addBase = true;
+      this.itemIndexesMap[0] = this.itemIndexesMap[0] + menuItems.length;
+      this.itemIndexesMap[1] = this.itemIndexesMap[1] + menuItems.length;
+    }
+
+    targetIndex = this.itemIndexesMap[targetIndex];
+    const rotation = (targetIndex - 1.5) * 60;
+    this.el.style.setProperty("--active-degree", `${rotation}deg`);
   }
 
   _remove(element: any, event: string, handler: any) {
@@ -179,7 +251,7 @@ export default class RadialMenuLogic {
   }
 
   _add(element: any, event: string, handler: any) {
-    element.addEventListener(event, handler);
+    element.addEventListener(event, handler, { passive: false });
   }
 
   isWithinRange(num, min, max) {

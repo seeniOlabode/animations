@@ -48,6 +48,7 @@ export const menuItems: MenuItem[] = [
 
 export default function RadialMenu() {
   const radialMenuContainer = useRef(null);
+  const container = useRef(null);
 
   function handleOptionSelect(option) {
     toast.message(`${option.name} selected`, {
@@ -56,28 +57,36 @@ export default function RadialMenu() {
   }
 
   useLayoutEffect(() => {
-    if (radialMenuContainer.current) {
+    if (radialMenuContainer.current && container.current) {
       const RadialMenu = new RadialMenuLogic(
         radialMenuContainer.current,
-        handleOptionSelect
+        handleOptionSelect,
+        container.current
       );
     }
   });
 
   return (
-    <div
-      className="radial-menu-container"
-      ref={radialMenuContainer}
-      data-is-active="false"
-    >
-      <div className="radial-menu-outer-ring"></div>
-      <ul className="radial-menu" data-active-item="forward">
-        {menuItems.map(({ name, icon }, i) => (
-          <li className="radial-menu-item" data-item-active="false">
-            <span className="slice">{icon}</span>
-          </li>
-        ))}
-      </ul>
+    <div ref={container} className="radial-menu-wrapper">
+      <div
+        className="radial-menu-container"
+        ref={radialMenuContainer}
+        data-is-active="false"
+      >
+        <div className="radial-menu-outer-ring"></div>
+        <ul className="radial-menu" data-active-item="forward">
+          {menuItems.map(({ name, icon }, i) => (
+            <li
+              className="radial-menu-item"
+              data-item-active="false"
+              data-index={i}
+              key={name + i}
+            >
+              <span className="slice">{icon}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }
