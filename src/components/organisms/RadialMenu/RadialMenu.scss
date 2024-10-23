@@ -1,0 +1,291 @@
+$items-num: 6;
+$angle: 30deg;
+
+$text-color: hsl(0, 0%, 50%);
+$active-gray: hsl(0, 0%, 92%);
+$muted-gray: hsl(0, 0%, 97%);
+$background: hsl(0, 0%, 100%);
+$foreground: hsla(0, 0%, 0%);
+
+$menu-dimension: 270px;
+$outer-ring-dimenstion: calc($menu-dimension + 25px);
+
+* {
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+}
+
+.radial-menu-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: $outer-ring-dimenstion;
+  width: $outer-ring-dimenstion;
+  position: fixed;
+  left: 0;
+  top: 0;
+  --active-degree: unset;
+  --scale: 1;
+
+  &.exit {
+    transition: all 100ms ease;
+    opacity: 0;
+    --scale: 0.9;
+  }
+}
+
+.radial-menu {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  overflow: hidden;
+  width: fit-content;
+  height: $menu-dimension;
+  width: $menu-dimension;
+  position: absolute;
+  box-shadow: 0 0 0 4px $background;
+
+  &::after {
+    content: "";
+    display: block;
+    height: 130px;
+    width: 130px;
+    position: absolute;
+    border: solid 1px $active-gray;
+    border-radius: 999px;
+    background-color: $background;
+  }
+
+  &::before {
+    content: attr(data-active-item);
+    display: none;
+    width: 120px;
+    height: 120px;
+    border-radius: 999px;
+    z-index: 10;
+    background-color: $background;
+    border: solid 1px $active-gray;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 400;
+    text-transform: capitalize;
+    color: $text-color;
+  }
+}
+
+.radial-menu-item {
+  position: absolute;
+  aspect-ratio: 1;
+  border-radius: 999px;
+  overflow: hidden;
+
+  border-radius: 999px;
+  height: $menu-dimension;
+  width: $menu-dimension;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  grid-template-areas: "position";
+  color: $text-color;
+
+  .slice {
+    grid-area: position;
+    aspect-ratio: 1;
+    background-color: $muted-gray;
+    box-shadow: 0 0 0 1px $active-gray;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 300ms ease;
+
+    svg {
+      position: relative;
+      left: 10px;
+      top: 10px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  &[data-item-active="true"] {
+    .slice {
+      background-color: $active-gray;
+      color: $foreground;
+    }
+  }
+}
+
+// Define a function to calculate angle per item based on the total number of items
+@function calc-angle($index) {
+  @return ($index - 1.5) * (360deg / $items-num);
+  // @return ($index) * (360deg / $items-num);
+}
+
+// Usage example
+.radial-menu-item {
+  @for $i from 1 through $items-num {
+    &:nth-child(#{$i}) {
+      transform: rotate(calc-angle($i));
+
+      .slice {
+        transform-origin: 100% 100%;
+        transform: skew($angle) scaleY(0.866);
+
+        svg {
+          transform: skew(-26.5deg)
+            scaleY(calc(1 / 0.866))
+            rotate(calc(calc-angle($i) * -1));
+        }
+      }
+    }
+  }
+}
+
+.radial-menu-outer-ring {
+  width: $outer-ring-dimenstion;
+  height: $outer-ring-dimenstion;
+  border-radius: 999px;
+  border: solid 8px $muted-gray;
+  position: absolute;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  z-index: -1;
+
+  &.should-transition {
+    transition: transform 400ms;
+    transition-timing-function: linear(
+      0 0%,
+      0.003284 1%,
+      0.012698 2%,
+      0.027604 3%,
+      0.047387 4%,
+      0.071461 5%,
+      0.099265 6%,
+      0.130268 7.000000000000001%,
+      0.163968 8%,
+      0.199893 9%,
+      0.237602 10%,
+      0.276682 11%,
+      0.316752 12%,
+      0.357459 13%,
+      0.398481 14.000000000000002%,
+      0.439523 15%,
+      0.480318 16%,
+      0.520625 17%,
+      0.56023 18%,
+      0.598944 19%,
+      0.6366 20%,
+      0.673054 21%,
+      0.708185 22%,
+      0.741889 23%,
+      0.774085 24%,
+      0.804706 25%,
+      0.833702 26%,
+      0.861039 27%,
+      0.886698 28.000000000000004%,
+      0.91067 28.999999999999996%,
+      0.93296 30%,
+      0.953581 31%,
+      0.97256 32%,
+      0.989926 33%,
+      1.005721 34%,
+      1.01999 35%,
+      1.032785 36%,
+      1.044162 37%,
+      1.054181 38%,
+      1.062906 39%,
+      1.070402 40%,
+      1.076737 41%,
+      1.081978 42%,
+      1.086196 43%,
+      1.08946 44%,
+      1.091838 45%,
+      1.093398 46%,
+      1.094208 47%,
+      1.094333 48%,
+      1.093836 49%,
+      1.09278 50%,
+      1.091225 51%,
+      1.089226 52%,
+      1.086839 53%,
+      1.084116 54%,
+      1.081107 55.00000000000001%,
+      1.077857 56.00000000000001%,
+      1.07441 56.99999999999999%,
+      1.070807 57.99999999999999%,
+      1.067087 59%,
+      1.063284 60%,
+      1.05943 61%,
+      1.055556 62%,
+      1.051687 63%,
+      1.04785 64%,
+      1.044065 65%,
+      1.040352 66%,
+      1.036728 67%,
+      1.033209 68%,
+      1.029807 69%,
+      1.026532 70%,
+      1.023396 71%,
+      1.020403 72%,
+      1.017561 73%,
+      1.014873 74%,
+      1.012343 75%,
+      1.009971 76%,
+      1.007758 77%,
+      1.005704 78%,
+      1.003807 79%,
+      1.002063 80%,
+      1.000471 81%,
+      0.999026 82%,
+      0.997723 83%,
+      0.996558 84%,
+      0.995525 85%,
+      0.994618 86%,
+      0.993832 87%,
+      0.993159 88%,
+      0.992594 89%,
+      0.99213 90%,
+      0.991761 91%,
+      0.99148 92%,
+      0.99128 93%,
+      0.991156 94%,
+      0.9911 95%,
+      0.991107 96%,
+      0.991171 97%,
+      0.991286 98%,
+      0.991446 99%,
+      0.991647 100%
+    );
+  }
+
+  &::before {
+    content: "";
+    display: block;
+    border-radius: 999px;
+    content: "";
+    position: absolute;
+    z-index: 1;
+    pointer-events: none;
+    inset: -8px;
+    padding: 8px;
+    opacity: 0;
+    background: conic-gradient(
+      from 30deg,
+      transparent 83.5%,
+      $active-gray 0,
+      $active-gray 100%
+    );
+  }
+}
+
+.radial-menu-container[data-is-active="true"] .radial-menu-outer-ring {
+  &::before {
+    opacity: 1;
+    display: block;
+  }
+  transform: rotate(var(--active-degree));
+}
